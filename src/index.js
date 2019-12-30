@@ -1,60 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-function If({ children, condition, strict, debug }) {
-  const [truthy, setTruthy] = React.useState(false);
-
-  React.useEffect(() => {
-    if (debug) {
-      console.log('%cDebug mode enabled', 'color:purple');
-      console.log(
-        `%cStrict mode ${strict ? 'enabled' : 'disabled'}`,
-        'color:gold'
-      );
-      console.log(
-        `%ctypeof condition: ${Object.prototype.toString
-          .call(condition)
-          .slice(8, -1)}`,
-        'color:limegreen'
-      );
-    }
-  }, [debug, strict, condition]);
-
-  React.useEffect(() => {
-    async function evaluateCondition() {
-      let conditionResult = false;
-      try {
-        if (typeof condition === 'function') {
-          conditionResult = await condition();
-        } else {
-          conditionResult = await condition;
-        }
-        setTruthy(conditionResult);
-      } catch (e) {
-        if (debug) {
-          console.warn('An error occured in the If component:', e);
-        }
-        if (strict) {
-          setTruthy(e);
-        }
-      }
-    }
-
-    evaluateCondition();
-  }, [condition, setTruthy, strict, debug]);
-
-  let nestedContent = children;
-
-  if (typeof children === 'function') {
-    nestedContent = children(truthy);
-  }
-
-  if (strict) {
-    return truthy === false ? null : nestedContent;
-  }
-
-  return truthy ? nestedContent : null;
-}
+import If from './If';
 
 function App() {
   return (
