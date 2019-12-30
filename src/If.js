@@ -1,13 +1,19 @@
 import React from 'react';
 
-export default function If({ children, condition, strict, debug }) {
+export default function If({
+  children,
+  condition,
+  strictTrue,
+  strictFalse,
+  debug
+}) {
   const [truthy, setTruthy] = React.useState(false);
 
   React.useEffect(() => {
     if (debug) {
       console.log('%cDebug mode enabled', 'color:purple');
       console.log(
-        `%cStrict mode ${strict ? 'enabled' : 'disabled'}`,
+        `%cStrict mode ${strictTrue || strictFalse ? 'enabled' : 'disabled'}`,
         'color:gold'
       );
       console.log(
@@ -17,7 +23,7 @@ export default function If({ children, condition, strict, debug }) {
         'color:limegreen'
       );
     }
-  }, [debug, strict, condition]);
+  }, [debug, strictTrue, strictFalse, condition]);
 
   React.useEffect(() => {
     async function evaluateCondition() {
@@ -28,19 +34,23 @@ export default function If({ children, condition, strict, debug }) {
         } else {
           conditionResult = await condition;
         }
-        setTruthy(conditionResult);
+        if (strictTrue && conditionResult === true) {
+          setTruthy(conditionResult);
+        } else if (!strictTrue) {
+          setTruthy(conditionResult);
+        }
       } catch (e) {
         if (debug) {
           console.warn('An error occured in the If component:', e);
         }
-        if (strict) {
+        if (strictFalse) {
           setTruthy(e);
         }
       }
     }
 
     evaluateCondition();
-  }, [condition, setTruthy, strict, debug]);
+  }, [condition, setTruthy, strictFalse, strictTrue, debug]);
 
   let nestedContent = children;
 
@@ -48,7 +58,11 @@ export default function If({ children, condition, strict, debug }) {
     nestedContent = children(truthy);
   }
 
-  if (strict) {
+  if (strictTrue) {
+    return truthy === true ? nestedContent : null;
+  }
+
+  if (strictFalse) {
     return truthy === false ? null : nestedContent;
   }
 

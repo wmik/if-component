@@ -6,7 +6,7 @@ import If from './If';
 function App() {
   return (
     <div>
-      <If debug strict condition={0}>
+      <If debug strictFalse condition={0}>
         {text => text}
       </If>
     </div>
