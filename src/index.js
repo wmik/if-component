@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 function If({ children, condition, strict, debug }) {
-  const [pass, setPass] = React.useState(false);
+  const [truthy, setTruthy] = React.useState(false);
   React.useEffect(() => {
     if (debug) {
       console.log('%cDebug mode enabled', 'color:purple');
@@ -18,6 +18,7 @@ function If({ children, condition, strict, debug }) {
       );
     }
   }, [debug, strict, condition]);
+
   React.useEffect(() => {
     async function evaluateCondition() {
       let conditionResult = false;
@@ -27,30 +28,33 @@ function If({ children, condition, strict, debug }) {
         } else {
           conditionResult = await condition;
         }
-        setPass(conditionResult);
+        setTruthy(conditionResult);
       } catch (e) {
         if (debug) {
           console.warn('An error occured in the If component:', e);
         }
         if (strict) {
-          setPass(e);
+          setTruthy(e);
         }
       }
     }
     evaluateCondition();
-  }, [condition, setPass, strict, debug]);
+  }, [condition, setTruthy, strict, debug]);
+
   let validChildren = children;
+
   if (typeof children === 'function') {
-    validChildren = children(pass);
+    validChildren = children(truthy);
   }
+
   if (strict) {
-    return pass === false ? null : validChildren;
+    return truthy === false ? null : validChildren;
   }
-  return pass ? validChildren : null;
+
+  return truthy ? validChildren : null;
 }
 
 function App() {
-  // const [condition, setCondition] = React.useState(true);
   return (
     <div>
       <If debug strict condition={0}>
