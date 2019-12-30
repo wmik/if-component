@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 
 function If({ children, condition, strict, debug }) {
   const [truthy, setTruthy] = React.useState(false);
+
   React.useEffect(() => {
     if (debug) {
       console.log('%cDebug mode enabled', 'color:purple');
@@ -38,20 +39,21 @@ function If({ children, condition, strict, debug }) {
         }
       }
     }
+
     evaluateCondition();
   }, [condition, setTruthy, strict, debug]);
 
-  let validChildren = children;
+  let nestedContent = children;
 
   if (typeof children === 'function') {
-    validChildren = children(truthy);
+    nestedContent = children(truthy);
   }
 
   if (strict) {
-    return truthy === false ? null : validChildren;
+    return truthy === false ? null : nestedContent;
   }
 
-  return truthy ? validChildren : null;
+  return truthy ? nestedContent : null;
 }
 
 function App() {
